@@ -339,10 +339,16 @@ def preprocess_accepted_only(filepath=None, output_path=None):
     return df
 
 
-def preprocess_rejected_only(filepath='rejected_2007_to_2018Q4.csv', output_path='cleaned_rejected.csv'):
+def preprocess_rejected_only(filepath=None, output_path=None):
     """
     Full preprocessing of rejected loans dataset
     """
+    # Set default paths using organized folder structure
+    if filepath is None:
+        filepath = os.path.join(RAW_DATA_DIR, 'rejected_2007_to_2018Q4.csv')
+    if output_path is None:
+        output_path = os.path.join(PROCESSED_DATA_DIR, 'cleaned_rejected.csv')
+    
     print("\n" + "="*60)
     print("FULL PREPROCESSING - REJECTED LOANS")
     print("="*60)
@@ -440,7 +446,7 @@ if __name__ == "__main__":
     print("\n" + "="*60)
     print("PREPROCESSING COMPLETE!")
     print("="*60)
-    print("\nOutput files:")
+    print("\nOutput files (in data/processed/):")
     print("  1. combined_loan_data.csv - For predicting rejection vs acceptance")
     print("  2. cleaned_accepted.csv   - For predicting loan default (accepted loans only)")
     print("  3. cleaned_rejected.csv   - Cleaned rejected loans data")

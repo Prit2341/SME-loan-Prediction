@@ -293,8 +293,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👤 Author
 
 **Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
+- GitHub: [@Prit2341](https://github.com/Prit2341)
+- LinkedIn: [Prit Mayani](https://www.linkedin.com/in/prit-mayani-a35b371b9/)
 
 ---
 
