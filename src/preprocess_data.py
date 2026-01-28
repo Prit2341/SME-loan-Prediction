@@ -4,16 +4,25 @@ Goal: Understand why loans are REJECTED vs ACCEPTED
 Combines both datasets using common features
 """
 
+import os
 import pandas as pd
 import numpy as np
 import warnings
 warnings.filterwarnings('ignore')
 
+# Paths - relative to project root
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RAW_DATA_DIR = os.path.join(BASE_DIR, 'data', 'raw')
+PROCESSED_DATA_DIR = os.path.join(BASE_DIR, 'data', 'processed')
 
-def preprocess_accepted_loans(filepath='accepted_2007_to_2018Q4.csv'):
+
+def preprocess_accepted_loans(filepath=None):
     """
     Preprocess accepted loans - extract common features
     """
+    if filepath is None:
+        filepath = os.path.join(RAW_DATA_DIR, 'accepted_2007_to_2018Q4.csv')
+    
     print("="*60)
     print("PREPROCESSING ACCEPTED LOANS DATA")
     print("="*60)
@@ -59,10 +68,13 @@ def preprocess_accepted_loans(filepath='accepted_2007_to_2018Q4.csv'):
     return df_clean
 
 
-def preprocess_rejected_loans(filepath='rejected_2007_to_2018Q4.csv'):
+def preprocess_rejected_loans(filepath=None):
     """
     Preprocess rejected loans - extract common features
     """
+    if filepath is None:
+        filepath = os.path.join(RAW_DATA_DIR, 'rejected_2007_to_2018Q4.csv')
+    
     print("\n" + "="*60)
     print("PREPROCESSING REJECTED LOANS DATA")
     print("="*60)
@@ -108,10 +120,13 @@ def preprocess_rejected_loans(filepath='rejected_2007_to_2018Q4.csv'):
     return df_clean
 
 
-def combine_and_process(df_accepted, df_rejected, output_path='combined_loan_data.csv'):
+def combine_and_process(df_accepted, df_rejected, output_path=None):
     """
     Combine both datasets and perform final preprocessing
     """
+    if output_path is None:
+        output_path = os.path.join(PROCESSED_DATA_DIR, 'combined_loan_data.csv')
+    
     print("\n" + "="*60)
     print("COMBINING DATASETS")
     print("="*60)
@@ -211,11 +226,16 @@ def combine_and_process(df_accepted, df_rejected, output_path='combined_loan_dat
     return df
 
 
-def preprocess_accepted_only(filepath='accepted_2007_to_2018Q4.csv', output_path='cleaned_accepted.csv'):
+def preprocess_accepted_only(filepath=None, output_path=None):
     """
     Full preprocessing of accepted loans for default prediction
     (separate model to understand why accepted loans default)
     """
+    if filepath is None:
+        filepath = os.path.join(RAW_DATA_DIR, 'accepted_2007_to_2018Q4.csv')
+    if output_path is None:
+        output_path = os.path.join(PROCESSED_DATA_DIR, 'cleaned_accepted.csv')
+    
     print("\n" + "="*60)
     print("FULL PREPROCESSING - ACCEPTED LOANS (Default Prediction)")
     print("="*60)

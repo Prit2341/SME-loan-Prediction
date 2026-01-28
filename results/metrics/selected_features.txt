@@ -1,0 +1,8 @@
+# Selected Features for Loan Rejection Prediction Model
+# Total features: 4
+# Selection threshold: Combined Score >= 0.1
+
+risk_score
+emp_length
+dti
+loan_amnt
