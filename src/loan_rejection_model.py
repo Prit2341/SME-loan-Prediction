@@ -27,6 +27,7 @@ from sklearn.metrics import (
     roc_curve, precision_recall_curve, average_precision_score
 )
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+from sklearn.pipeline import Pipeline
 import joblib
 
 # Settings
@@ -146,7 +147,7 @@ def train_gradient_boosting(X_train, y_train):
     return model
 
 
-def refine_best_model(X_train, X_test, y_train, y_test, feature_names):
+def refine_best_model(X_train, X_test, y_train, y_test, feature_names, scaler=None):
     """
     Refine the best model (Gradient Boosting) with hyperparameter tuning.
     """
@@ -252,13 +253,19 @@ def refine_best_model(X_train, X_test, y_train, y_test, feature_names):
     for i, (_, row) in enumerate(importance_df.head(10).iterrows(), 1):
         print(f"   {i:2}. {row['Feature']:<30} {row['Importance']:.4f}")
     
-    # Step 6: Save the refined model
+    # Step 6: Save the refined model (and a self-contained Pipeline if scaler provided)
     print("\n📊 Step 6: Saving Refined Model...")
-    
+
     model_path = os.path.join(MODELS_DIR, 'refined_gradient_boosting_model.joblib')
     joblib.dump(refined_model, model_path)
     print(f"   ✅ Saved: {model_path}")
-    
+
+    if scaler is not None:
+        pipeline = Pipeline([('scaler', scaler), ('model', refined_model)])
+        pipeline_path = os.path.join(MODELS_DIR, 'loan_rejection_pipeline.joblib')
+        joblib.dump(pipeline, pipeline_path)
+        print(f"   ✅ Saved: {pipeline_path} (scaler + model pipeline)")
+
     # Save best parameters
     params_df = pd.DataFrame([random_search.best_params_])
     params_path = os.path.join(METRICS_DIR, 'best_model_parameters.csv')
@@ -628,17 +635,22 @@ def save_results(models, results_df, scaler, feature_names):
     print("\n" + "=" * 70)
     print("💾 SAVING RESULTS")
     print("=" * 70)
-    
+
     # Save results to CSV
     results_path = os.path.join(METRICS_DIR, 'model_results.csv')
     results_df.to_csv(results_path, index=False)
     print(f"✅ Saved: {results_path}")
-    
+
     # Save feature names
     features_path = os.path.join(METRICS_DIR, 'model_features.csv')
     pd.DataFrame({'Feature': feature_names}).to_csv(features_path, index=False)
     print(f"✅ Saved: {features_path}")
-    
+
+    # Save scaler so new predictions can be correctly scaled
+    scaler_path = os.path.join(MODELS_DIR, 'scaler.joblib')
+    joblib.dump(scaler, scaler_path)
+    print(f"✅ Saved: {scaler_path}")
+
     print("\n📂 All results saved successfully!")
 
 
@@ -940,7 +952,7 @@ def main():
     
     # Step 10: Refine the best model (Gradient Boosting)
     refined_model, refined_metrics, best_params = refine_best_model(
-        X_train, X_test, y_train, y_test, feature_names
+        X_train, X_test, y_train, y_test, feature_names, scaler=scaler
     )
     
     # Step 11: Visualize refined model results

@@ -1,9 +1,10 @@
 # 🏦 Loan Rejection Prediction System
 
-A machine learning project to predict and understand **why loan applications get rejected vs accepted** using LendingClub data (2007-2018). Built with comprehensive EDA, feature analysis, and optimized Gradient Boosting model achieving **99.55% ROC-AUC**.
+A machine learning project that predicts **whether a loan application will be rejected or accepted** — and explains *why* — using real LendingClub data (2007–2018). Achieved **99.55% ROC-AUC** with a refined Gradient Boosting model.
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3+-orange.svg)
+![ROC-AUC](https://img.shields.io/badge/ROC--AUC-99.55%25-brightgreen.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
 ---
@@ -18,48 +19,55 @@ A machine learning project to predict and understand **why loan applications get
 - [Model Performance](#-model-performance)
 - [Dataset](#-dataset)
 - [Technologies](#-technologies)
-- [License](#-license)
+- [Author](#-author)
 
 ---
 
 ## 🎯 Overview
 
-This project analyzes Lending Club loan data to answer a critical business question:
+Banks reject millions of loan applications without explaining why. This project solves that by building a system that:
 
-> **Why do some loan applications get rejected while others get accepted?**
+> **Predicts loan rejection AND explains the key reasons behind it**
 
 ### Business Objectives
-- Identify key factors that lead to loan rejection
-- Build predictive models to classify applications
-- Provide actionable insights for risk assessment
-- Minimize credit losses while maximizing approvals
+- Identify the key factors that cause loan rejection
+- Build and compare multiple ML models for classification
+- Provide actionable insights for applicants and lenders
+- Deploy a self-contained prediction pipeline
 
 ### Project Workflow
 ```
-📂 Raw Data → 🔧 Preprocessing → 📊 EDA → 🔍 Feature Analysis → 🤖 ML Models → 🎯 Insights
+Raw Data → Preprocessing → EDA → Feature Selection → Model Training → Hyperparameter Tuning → Pipeline
 ```
 
 ---
 
 ## 🔍 Key Findings
 
+### Feature Importance (Refined Gradient Boosting)
+
+| Rank | Feature | Importance | Role |
+|------|---------|------------|------|
+| 1 | `emp_length` | **74.15%** | Acceptance factor |
+| 2 | `risk_score` | **20.80%** | Acceptance factor |
+| 3 | `dti` | **4.24%** | Rejection factor |
+| 4 | `loan_amnt` | **0.81%** | Minor rejection factor |
+
+> **Key insight:** Employment length is a stronger predictor than credit score. Job stability matters more than past credit history to LendingClub's model.
+
 ### ❌ Why Loans Get REJECTED
 
-| Factor | Impact | Description |
-|--------|--------|-------------|
-| **High DTI Ratio** | 🔴 Strong | Higher debt relative to income |
-| **Low Credit Score** | 🔴 Strong | Poor credit history (FICO < 660) |
-| **Short Employment** | 🟡 Moderate | Less job stability |
-| **Large Loan Amount** | 🟢 Minor | Requesting too much |
+| Factor | Logistic Coef | Description |
+|--------|--------------|-------------|
+| **High DTI Ratio** | +41.93 | Debt payments eat up most of income |
+| **Large Loan Amount** | +0.09 | Requesting beyond means |
 
 ### ✅ Why Loans Get ACCEPTED
 
-| Factor | Impact | Description |
-|--------|--------|-------------|
-| **High Credit Score** | 🔴 Strong | FICO > 740 significantly helps |
-| **Long Employment** | 🔴 Strong | 5+ years of stable employment |
-| **Low DTI Ratio** | 🟡 Moderate | DTI < 35% preferred |
-| **Reasonable Amount** | 🟢 Minor | Loan matches income level |
+| Factor | Logistic Coef | Description |
+|--------|--------------|-------------|
+| **Long Employment** | -2.01 | Stable income = lower default risk |
+| **High Credit Score** | -1.70 | History of responsible credit use |
 
 ---
 
@@ -68,42 +76,50 @@ This project analyzes Lending Club loan data to answer a critical business quest
 ```
 SME loan/
 │
-├── � data/
-│   ├── raw/                           # Original datasets
-│   │   ├── accepted_2007_to_2018Q4.csv
-│   │   └── rejected_2007_to_2018Q4.csv
-│   └── processed/                     # Cleaned & processed data
-│       ├── combined_loan_data.csv
-│       ├── cleaned_accepted.csv
-│       ├── cleaned_rejected.csv
-│       └── model_ready_data.csv
+├── 📂 data/
+│   ├── raw/                               # Original datasets (not tracked — too large)
+│   │   ├── accepted_2007_to_2018Q4.csv    # 2.26M rows, 151 columns
+│   │   └── rejected_2007_to_2018Q4.csv    # 27.6M rows, 9 columns
+│   └── processed/                         # Cleaned & processed data (not tracked)
+│       ├── combined_loan_data.csv          # Merged dataset (3.58M rows, 71 cols)
+│       ├── model_ready_data.csv            # Final model input (4 features + target)
+│       ├── cleaned_accepted.csv            # Accepted loans for default prediction
+│       └── cleaned_rejected.csv            # Cleaned rejected loans
 │
-├── 📂 models/
-│   └── refined_gradient_boosting_model.joblib
+├── 📂 models/                             # Saved model artifacts (not tracked)
+│   ├── loan_rejection_pipeline.joblib     # ⭐ Scaler + model combined (use this)
+│   ├── refined_gradient_boosting_model.joblib
+│   └── scaler.joblib                      # Standalone StandardScaler
 │
 ├── 📂 notebooks/
-│   └── EDA_loan_analysis.ipynb
+│   └── EDA_loan_analysis.ipynb            # Exploratory data analysis
 │
 ├── 📂 results/
-│   ├── figures/                       # Visualizations
+│   ├── figures/                           # All visualizations (PNG)
 │   │   ├── confusion_matrices.png
 │   │   ├── roc_curves.png
+│   │   ├── precision_recall_curves.png
 │   │   ├── feature_importance.png
+│   │   ├── model_comparison.png
+│   │   ├── refined_model_results.png
 │   │   └── why_rejected_vs_accepted.png
-│   └── metrics/                       # Model metrics & analysis
+│   └── metrics/                           # Model metrics & analysis (CSV)
 │       ├── model_results.csv
 │       ├── best_model_parameters.csv
-│       ├── why_rejected_vs_accepted.csv
-│       └── feature_importance_ranking.csv
+│       ├── refined_feature_importance.csv
+│       ├── feature_importance_ranking.csv
+│       ├── model_features.csv
+│       ├── selected_features.txt
+│       └── why_rejected_vs_accepted.csv
 │
 ├── 📂 src/
-│   ├── preprocess_data.py             # Data preprocessing pipeline
-│   └── loan_rejection_model.py        # ML training & evaluation
+│   ├── preprocess_data.py                 # Full data preprocessing pipeline
+│   └── loan_rejection_model.py            # ML training, tuning & evaluation
 │
+├── 📄 predict.py                          # ⭐ Quick prediction demo script
 ├── 📄 .gitignore
 ├── 📄 README.md
-├── 📄 requirements.txt
-└── 📂 venv/                           # Virtual environment
+└── 📄 requirements.txt
 ```
 
 ---
@@ -111,15 +127,15 @@ SME loan/
 ## ⚙️ Installation
 
 ### Prerequisites
-- Python 3.8 or higher
-- pip package manager
+- Python 3.8+
+- ~35GB disk space for raw data
 
 ### Steps
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/sme-loan-prediction.git
-cd sme-loan-prediction
+git clone https://github.com/Prit2341/SME-loan-Prediction.git
+cd SME-loan-Prediction
 ```
 
 2. **Create virtual environment**
@@ -139,59 +155,64 @@ pip install -r requirements.txt
 ```
 
 4. **Download dataset**
-- Download from [Kaggle - Lending Club Dataset](https://www.kaggle.com/datasets/wordsforthewise/lending-club)
-- Place CSV files in the project root directory
+- Download from [Kaggle — LendingClub Dataset](https://www.kaggle.com/datasets/wordsforthewise/lending-club)
+- Place both CSV files inside `data/raw/`
 
 ---
 
 ## 🚀 Usage
 
-### 1. Preprocess Data
+### Step 1 — Preprocess Data
 ```bash
-cd src
-python preprocess_data.py
+python src/preprocess_data.py
 ```
-This creates files in `data/processed/`:
-- `combined_loan_data.csv` - Merged accepted + rejected data
-- `cleaned_accepted.csv` - Processed accepted loans
-- `cleaned_rejected.csv` - Processed rejected loans
+Creates in `data/processed/`:
+- `combined_loan_data.csv` — merged accepted + rejected (3.58M rows)
+- `model_ready_data.csv` — 4 features + target, ready for training
+- `cleaned_accepted.csv` — for default prediction (separate task)
+- `cleaned_rejected.csv` — cleaned rejected loans
 
-### 2. Run EDA (Jupyter Notebook)
+### Step 2 — Run EDA (optional)
 ```bash
 jupyter notebook notebooks/EDA_loan_analysis.ipynb
 ```
 
-### 3. Train & Evaluate Models
+### Step 3 — Train & Evaluate Models
 ```bash
-cd src
-python loan_rejection_model.py
+# Windows (required for emoji print statements)
+PYTHONIOENCODING=utf-8 python src/loan_rejection_model.py
 ```
 This will:
-- Train 3 models (Logistic Regression, Random Forest, Gradient Boosting)
-- Optimize the best model with hyperparameter tuning
-- Generate visualizations and save results
+- Train 3 models: Logistic Regression, Random Forest, Gradient Boosting
+- Tune the best model with RandomizedSearchCV (30 iterations, 3-fold CV)
+- Save `models/loan_rejection_pipeline.joblib` (scaler + model)
+- Generate all visualizations and metrics
 
-### 4. Use the Trained Model
+### Step 4 — Run Prediction Demo
+```bash
+python predict.py
+```
+Shows predictions for 3 example applicants (high risk / low risk / borderline).
+
+### Step 5 — Use in Your Own Code
 ```python
 import joblib
 import pandas as pd
 
-# Load the refined model
-model = joblib.load('models/refined_gradient_boosting_model.joblib')
+# Load self-contained pipeline — no manual scaling needed
+pipeline = joblib.load('models/loan_rejection_pipeline.joblib')
 
-# Prepare new data (must have same features)
 new_application = pd.DataFrame({
-    'loan_amnt': [15000],
-    'dti': [25.5],
+    'loan_amnt':  [15000],
+    'dti':        [25.5],
     'emp_length': [5],
     'risk_score': [720]
 })
 
-# Predict
-prediction = model.predict(new_application)
-probability = model.predict_proba(new_application)[:, 1]
+prediction  = pipeline.predict(new_application)
+probability = pipeline.predict_proba(new_application)[:, 1]
 
-print(f"Prediction: {'Rejected' if prediction[0] == 1 else 'Accepted'}")
+print(f"Verdict:            {'REJECTED' if prediction[0] == 1 else 'ACCEPTED'}")
 print(f"Rejection Probability: {probability[0]:.2%}")
 ```
 
@@ -203,96 +224,98 @@ print(f"Rejection Probability: {probability[0]:.2%}")
 
 | Model | ROC-AUC | Accuracy | F1 Score | Precision | Recall |
 |-------|---------|----------|----------|-----------|--------|
-| **Gradient Boosting (Refined)** | **0.9955** | **98.04%** | **0.9758** | 99.09% | 96.11% |
+| **Gradient Boosting (Refined)** | **0.9955** | **98.04%** | **0.9758** | **99.09%** | **96.11%** |
 | Gradient Boosting (Base) | 0.9933 | 96.74% | 0.9595 | 97.87% | 94.10% |
 | Random Forest | 0.9844 | 94.65% | 0.9353 | 92.88% | 94.18% |
 | Logistic Regression | 0.9428 | 86.42% | 0.8424 | 80.42% | 88.43% |
 
-### Optimized Hyperparameters (Best Model)
+### 5-Fold Cross-Validation (Refined Model)
+```
+CV Scores : [0.9954, 0.9959, 0.9959, 0.9958, 0.9955]
+Mean      : 0.9957
+Std Dev   : ±0.0002  ← very stable, no overfitting
+```
 
-| Parameter | Value |
-|-----------|-------|
-| n_estimators | 250 |
-| max_depth | 6 |
-| learning_rate | 0.1 |
-| subsample | 0.95 |
-| min_samples_split | 5 |
-| min_samples_leaf | 8 |
+### Optimized Hyperparameters
+
+| Parameter | Value | What it controls |
+|-----------|-------|-----------------|
+| `n_estimators` | 250 | Number of trees |
+| `max_depth` | 6 | Tree complexity |
+| `learning_rate` | 0.1 | Step size per tree |
+| `subsample` | 0.95 | Data fraction per tree |
+| `min_samples_split` | 5 | Min samples to split a node |
+| `min_samples_leaf` | 8 | Min samples in a leaf |
 
 ---
 
 ## 💾 Dataset
 
 ### Source
-- **Kaggle**: [Lending Club Dataset](https://www.kaggle.com/datasets/wordsforthewise/lending-club)
-- **Period**: 2007 - 2018 Q4
+- **Kaggle**: [LendingClub Dataset](https://www.kaggle.com/datasets/wordsforthewise/lending-club)
+- **Period**: 2007 — 2018 Q4
 
-### Files
+### Raw Files
 
 | File | Rows | Columns | Description |
 |------|------|---------|-------------|
 | `accepted_2007_to_2018Q4.csv` | 2.26M | 151 | Approved loan applications |
 | `rejected_2007_to_2018Q4.csv` | 27.6M | 9 | Rejected loan applications |
-| `combined_loan_data.csv` | 3.58M | 71 | Merged & processed data |
 
-### Key Features Used
+### Class Imbalance Handling
+Rejected loans outnumber accepted 12:1. Rejected data was **randomly sampled at a 2:1 ratio** vs accepted to balance classes without losing information.
+
+| Split | Count |
+|-------|-------|
+| Accepted | 2,113,648 |
+| Rejected (sampled) | 1,470,316 |
+| **Total** | **3,583,964** |
+
+### Features Used
 
 | Feature | Type | Description |
 |---------|------|-------------|
 | `loan_amnt` | Numeric | Loan amount requested ($) |
 | `dti` | Numeric | Debt-to-income ratio (%) |
-| `emp_length` | Numeric | Years of employment |
-| `risk_score` | Numeric | Credit/FICO score |
-| `addr_state_*` | Categorical | State (one-hot encoded) |
-| `purpose_*` | Categorical | Loan purpose (one-hot encoded) |
+| `emp_length` | Numeric | Years of employment (0–10) |
+| `risk_score` | Numeric | FICO credit score |
 | **`is_rejected`** | **Target** | **0 = Accepted, 1 = Rejected** |
+
+> `addr_state` and `purpose` were one-hot encoded during preprocessing but dropped in the final model (only top 4 features selected via combined RF + mutual information score).
 
 ---
 
 ## 🛠️ Technologies
 
-| Category | Technologies |
-|----------|-------------|
+| Category | Tools |
+|----------|-------|
 | **Language** | Python 3.8+ |
 | **Data Processing** | Pandas, NumPy |
-| **Machine Learning** | Scikit-learn, Joblib |
+| **Machine Learning** | Scikit-learn (Pipeline, GradientBoosting, RandomForest, LogisticRegression) |
+| **Model Persistence** | Joblib |
 | **Visualization** | Matplotlib, Seaborn |
 | **Statistics** | SciPy |
 | **Notebooks** | Jupyter |
 
 ---
 
-## 📈 Visualizations
+## 📈 Visualizations Generated
 
-The project generates several visualizations:
-
-- **ROC Curves** - Model performance comparison
-- **Confusion Matrices** - Classification accuracy breakdown
-- **Feature Importance** - Most predictive features
-- **Probability Distributions** - Prediction confidence
-- **Why Rejected vs Accepted** - Factor analysis chart
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+| File | Description |
+|------|-------------|
+| `roc_curves.png` | ROC curves for all 3 models |
+| `confusion_matrices.png` | Confusion matrix per model |
+| `precision_recall_curves.png` | Precision-Recall tradeoff curves |
+| `feature_importance.png` | RF vs GB feature importance comparison |
+| `model_comparison.png` | Side-by-side metric bar chart |
+| `refined_model_results.png` | Refined model: CM, ROC, feature importance, probability distribution |
+| `why_rejected_vs_accepted.png` | Logistic Regression coefficient analysis |
 
 ---
 
 ## 👤 Author
 
-**Your Name**
+**Prit Mayani**
 - GitHub: [@Prit2341](https://github.com/Prit2341)
 - LinkedIn: [Prit Mayani](https://www.linkedin.com/in/prit-mayani-a35b371b9/)
 
@@ -302,7 +325,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [LendingClub](https://www.lendingclub.com/) for the dataset
 - [Kaggle](https://www.kaggle.com/) for hosting the data
-- Scikit-learn documentation and community
+- Scikit-learn community
 
 ---
 
